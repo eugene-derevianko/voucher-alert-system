@@ -1,0 +1,64 @@
+@startuml
+
+
+package "Voucher Alert System" {
+
+    [User service]
+    [Voucher service]
+    [Subscription service]
+    [Digest service]
+    [Template service]
+    [Email sender]
+    [Integration service]
+
+    database users
+    database vouchers
+    database jobs
+    database retailers
+    database subscriptions
+
+    node "Affiliate network integration services" as ANIS {
+        package "REST based"{
+         [Fist retailer]
+         [Second retailer]
+        }
+        package "FTP based"{
+         [another retailer]
+        }
+    }
+
+        node "Message Queue" as Queue{
+            [email topic]
+            [template topic]
+        }
+
+    [User service] -> users
+    [Voucher service] ->  vouchers
+    [Subscription service] -> subscriptions
+    [Integration service] -> retailers
+    [Scheduler service] -> jobs
+
+    [Client API] -> [Integration service] : get retailers
+    [Client API] -> [User service] : manage users
+    [Client API] -> [Subscription service] : manage subscriptions
+    [Client API] --> [Scheduler service] : create/delete jobs
+
+    [Scheduler service] --> [User service] : get users\nfor timezone
+    [Scheduler service] --> [Digest service] : trigger job
+
+    [Scheduler service] -> [Integration service] : trigger pull job
+    [Integration service] <-> ANIS
+    [Integration service] -> [Voucher service]
+
+    [Digest service] --> [User service]
+    [Digest service] -->[Subscription service]
+    [Digest service] -->[Voucher service]
+    [Digest service] --> Queue
+
+    [Template service] <--> Queue
+    [Email sender] <- Queue
+
+}
+
+
+@enduml

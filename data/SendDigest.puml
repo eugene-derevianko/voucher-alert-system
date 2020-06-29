@@ -1,0 +1,38 @@
+@startuml
+box "Internal Services" #LightBlue
+participant "Scheduler service" as scheduler order 10
+participant "Digest service" as ds order 20
+participant "Subscription service" as subs order 30
+participant "User service" as us order 25
+participant "Voucher service" as vs order 50
+participant "Message Queue" as kafka order 60 #99FF99
+participant "Message service" as mts order 90
+end box
+participant "SMTP service" as smtp order 110
+activate us
+activate subs
+activate kafka
+scheduler -> ds : trigger digest send job
+activate ds
+ds -> us : get users for this time
+us -> ds : list of users
+ds -> subs : active subscriptions for users
+subs -> ds : active subscriptions
+ds -> vs : get vouchers for subscriptions
+activate vs
+vs -> ds : vouchers
+deactivate vs
+ds -> kafka : send message \nfor user about new vouchers
+deactivate ds
+kafka -> mts : messages
+activate mts
+mts -> mts : create by template email
+mts -> smtp : send email
+deactivate mts
+
+deactivate mts
+deactivate subs
+deactivate kafka
+deactivate us
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+actor user order 10
+participant "Integration service" as is order 25
+participant "Client API" as capi order 20
+participant "User Service" as us order 30
+participant "Subscription Service" as subs order 40
+
+
+== Create Subscription ==
+user -> capi : get retailers list
+activate capi
+capi -> is : get retailers list
+activate is
+is -> capi : retailers list
+deactivate is
+capi -> user : retailers list
+deactivate capi
+user -> capi : subscribe
+activate capi
+
+capi -> us : email
+activate us
+us -> capi : userId
+deactivate us
+capi -> subs : create subscription
+activate subs
+subs -> capi : Ok
+deactivate subs
+capi -> user : Ok!
+deactivate capi
+
+== Get Subscriptions ==
+
+user -> capi : get subscribtions
+activate capi
+capi -> us : email
+activate us
+us -> capi : userId
+deactivate us
+capi -> subs : get subscription
+activate subs
+subs -> capi : subscriptions
+deactivate subs
+capi -> user : subscriptions
+deactivate capi
+
+== Delete Subscriptions ==
+
+user -> capi : delete subscription
+activate capi
+capi -> us : email
+activate us
+us -> capi : userId
+deactivate us
+capi -> subs : update subscription list
+activate subs
+subs -> capi : Ok
+deactivate subs
+
+capi -> user : Ok!
+deactivate capi
+@enduml

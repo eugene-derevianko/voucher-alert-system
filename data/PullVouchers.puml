@@ -1,0 +1,22 @@
+@startuml
+box "Internal Services" #LightBlue
+participant "Scheduler service" as scheduler order 10
+participant "Voucher service" as vs order 15
+participant "Integration service" as is order 20
+collections "{Affiliate network} integration service" as anis order 30
+end box
+collections "{Affiliate network}" as an order 40
+
+scheduler -> is : pull vouchers \n from some network
+activate is
+is -> anis : start pull process \naccording transport \nREST, FTP, something else
+activate anis
+anis -> an : pull vouchers
+an -> anis : vouchers
+anis -> is : vouchers
+deactivate anis
+is -> is : map response to internal Entities \nfrom JSON XML CSV
+is -> vs : update vouchers
+deactivate is
+
+@enduml
